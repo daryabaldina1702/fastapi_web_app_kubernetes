@@ -1,0 +1,58 @@
+image:
+  repository: harbor.k8s.labs.itmo.loc/public/myapp
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "public"
+  annotations: {}
+  hosts:
+    - host: myapp.k8s.labs.itmo.loc
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: itmo-labs-tls
+      hosts:
+        - myapp.k8s.labs.itmo.loc
+
+env:
+  REDIS_HOST: redis-master
+  REDIS_PORT: "6379"
+  QDRANT_HOST: qdrant.default.svc.cluster.local
+  QDRANT_PORT: "6333"
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - myapp.k8s.labs.itmo.loc
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+

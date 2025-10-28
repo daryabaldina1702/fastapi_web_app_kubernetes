@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp-chart.fullname" . }}
+  labels:
+    app: {{ include "myapp-chart.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "myapp-chart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "myapp-chart.name" . }}
+    spec:
+      containers:
+        - name: {{ include "myapp-chart.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: REDIS_HOST
+              value: "{{ .Values.env.REDIS_HOST }}"
+            - name: REDIS_PORT
+              value: "{{ .Values.env.REDIS_PORT }}"
+            - name: QDRANT_HOST
+              value: "{{ .Values.env.QDRANT_HOST }}"
+            - name: QDRANT_PORT
+              value: "{{ .Values.env.QDRANT_PORT }}"
